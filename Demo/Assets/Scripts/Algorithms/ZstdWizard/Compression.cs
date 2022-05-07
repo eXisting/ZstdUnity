@@ -19,7 +19,7 @@ namespace Algorithms.ZstdWizard
 			
 			Zstd.ZSTD_CCtx_setParameter(_cctx, ZSTD_cParameter.ZSTD_c_compressionLevel, _config.CompressionLevel);
 			
-			if (_config.HasDictionary)
+			if (_config.DictionaryInUse)
 				Zstd.ZSTD_CCtx_refCDict(_cctx, _config.Cdict);
 		}
 		
@@ -56,7 +56,7 @@ namespace Algorithms.ZstdWizard
 		{
 			UIntPtr dstSize;
 
-			if (_config.HasDictionary)
+			if (_config.DictionaryInUse)
 				dstSize = Zstd.ZSTD_compress_usingCDict(_cctx, 
 					ref MemoryMarshal.GetReference(dst), (size_t)dst.Length, 
 					ref MemoryMarshal.GetReference(src), (size_t)src.Length, _config.Cdict);

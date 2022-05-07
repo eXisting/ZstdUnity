@@ -7,7 +7,7 @@ namespace Algorithms.ZstdWizard
 	public class CConfig : IDisposable
 	{
 		public readonly int CompressionLevel;
-		public bool HasDictionary => Cdict != IntPtr.Zero;
+		public bool DictionaryInUse => Cdict != IntPtr.Zero;
 
 		public IntPtr Cdict { get; private set; }
 

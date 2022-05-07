@@ -25,13 +25,13 @@ namespace Algorithms.ZstdWizard
 			
 			int decompressedSize;
 			if (_config.HasDictionary)
-				decompressedSize = (int)Zstd.ZSTD_decompressDCtx(_dctx, 
-					ref MemoryMarshal.GetReference((Span<byte>)dst), (size_t)dst.Length, 
-					ref MemoryMarshal.GetReference(src), (size_t)src.Length);
-			else
 				decompressedSize = (int)Zstd.ZSTD_decompress_usingDDict(_dctx, 
 					ref MemoryMarshal.GetReference((Span<byte>)dst), (size_t)dst.Length, 
 					ref MemoryMarshal.GetReference(src), (size_t)src.Length, _config.Ddict);
+			else
+				decompressedSize = (int)Zstd.ZSTD_decompressDCtx(_dctx, 
+					ref MemoryMarshal.GetReference((Span<byte>)dst), (size_t)dst.Length, 
+					ref MemoryMarshal.GetReference(src), (size_t)src.Length);
 
 			if(estimatedSize != (ulong)decompressedSize)
 				throw new Exception("Got different decompressed size than estimated");
@@ -42,7 +42,7 @@ namespace Algorithms.ZstdWizard
 		private static ulong EstimatedFrameSizeOf(ReadOnlySpan<byte> src)
 		{
 			var size = Zstd.ZSTD_getFrameContentSize(ref MemoryMarshal.GetReference(src), (size_t)src.Length);
-			if (size == unchecked(0UL - 1) || size == unchecked(0UL - 2)) 
+			if (size is unchecked(0UL - 1) or unchecked(0UL - 2)) 
 				throw new ArgumentException();
 			
 			return size;
@@ -65,6 +65,7 @@ namespace Algorithms.ZstdWizard
 				return;
 
 			Zstd.ZSTD_freeDCtx(_dctx);
+
 			_dctx = IntPtr.Zero;
 		}
 	}
