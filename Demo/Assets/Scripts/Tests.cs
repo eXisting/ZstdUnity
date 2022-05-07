@@ -17,16 +17,18 @@ public class Tests : MonoBehaviour
 
     private void Start()
     {
+        // Pass it as param if needed
+        // var dict = TrainDict();
+        
         Test(RandomCharacterOf(100));
         Test(RandomCharacterOf(100 * 10));
         Test(RandomCharacterOf(100 * 1000));
     }
 
-    private void Test(byte[] src)
+    private void Test(byte[] src, byte[] dict = null, bool useResources = false)
     {
         var watch = new System.Diagnostics.Stopwatch();
-        // var trainedData = File.ReadAllBytes(_cSharTrainedDict);
-        var trainedData = Resources.Load<TextAsset>("sample_dict").bytes;
+        var trainedData = useResources ? Resources.Load<TextAsset>("dict")?.bytes : dict;
         
         using var cConfig = new CConfig(trainedData, 5);
         using var compression = new Compression(cConfig);
@@ -79,9 +81,6 @@ public class Tests : MonoBehaviour
         
         Debug.Log($"Dictionary trained: {dictBuffer.Length} bytes");
 
-        // write it for future use
-        File.WriteAllBytes(_cSharTrainedDict, dictBuffer);
-        
         return dictBuffer;
     }
     

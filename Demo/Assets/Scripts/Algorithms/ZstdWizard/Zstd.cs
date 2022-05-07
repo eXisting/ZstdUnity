@@ -8,7 +8,11 @@ namespace Algorithms.ZstdWizard
 {
 	internal static class Zstd
 	{
+#if UNITY_EDITOR
 		private const string DllName = "zstd";
+#else
+		private const string DllName = "__Internal";
+#endif
 
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern size_t ZDICT_trainFromBuffer(byte[] dictBuffer, size_t dictBufferCapacity, byte[] samplesBuffer, size_t[] samplesSizes, uint nbSamples);
