@@ -1,12 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using Algorithms;
 using Algorithms.ZstdWizard;
 using TMPro;
 using UnityEngine;
@@ -27,10 +22,11 @@ public class Tests : MonoBehaviour
         Test(RandomCharacterOf(100 * 1000));
     }
 
-    private static void Test(byte[] src)
+    private void Test(byte[] src)
     {
         var watch = new System.Diagnostics.Stopwatch();
-        var trainedData = Resources.Load<TextAsset>("dict").bytes;
+        // var trainedData = File.ReadAllBytes(_cSharTrainedDict);
+        var trainedData = Resources.Load<TextAsset>("sample_dict").bytes;
         
         using var cConfig = new CConfig(trainedData, 5);
         using var compression = new Compression(cConfig);
@@ -61,7 +57,7 @@ public class Tests : MonoBehaviour
         
         // Generate random data set 
         var buffer = Range(0, 1000).Select(x => unchecked((byte)(x * x))).ToArray();
-        var data = Range(0, 100)
+        var data = Range(0, 1000)
             .Select(x => buffer.Skip(x).Take(200 - x).ToArray())
             .ToArray();
         
