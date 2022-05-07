@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Algorithms;
+using Algorithms.ZstdWizard;
 using TMPro;
 using UnityEngine;
 using static System.Linq.Enumerable;
@@ -23,9 +25,9 @@ public class Tests : MonoBehaviour
 
     void Start()
     {
-        DictionaryTest(Characters(100));
-        DictionaryTest(Characters(100 * 10));
-        DictionaryTest(Characters(100 * 1000));
+        Wrapped(Characters(100));
+        Wrapped(Characters(100 * 10));
+        Wrapped(Characters(100 * 1000));
     }
 
     // void Lz4DllTest(byte[] src)
@@ -75,102 +77,133 @@ public class Tests : MonoBehaviour
     //     Debug.Log($"Data input bytes: {src.Length}. Compression time: {compressionTook.ToString()}ms. Decompression time: {decompressionTook.ToString()}ms");
     // }
     
-    unsafe void ZstdTest(byte[] src)
+    // unsafe void ZstdTest(byte[] src)
+    // {
+    //     try
+    //     {
+    //         var watch = new System.Diagnostics.Stopwatch();
+    //
+    //         var cctx = ZstdWizard.ZSTD_createCCtx();
+    //         var dctx = ZstdWizard.ZSTD_createDCtx();
+    //
+    //         var dest = new byte[ZstdWizard.ZSTD_compressBound((nuint)src.Length)];
+    //         var uncompressed = new byte[src.Length];
+    //         
+    //         fixed (byte* dstPtr = dest)
+    //         fixed (byte* srcPtr = src)
+    //         fixed (byte* uncompressedPtr = uncompressed)
+    //         {
+    //             watch.Start();
+    //             var compressedLength = ZstdWizard.ZSTD_compressCCtx(cctx, (IntPtr)dstPtr, (nuint)dest.Length, (IntPtr) srcPtr, (nuint)src.Length,
+    //                 (int)ZSTD_cParameter.ZSTD_c_compressionLevel);
+    //             watch.Stop();
+    //
+    //             var compressionTook = watch.Elapsed;
+    //             
+    //             watch.Restart();
+    //             var decompressedLength = ZstdWizard.ZSTD_decompressDCtx(dctx, (IntPtr)uncompressedPtr, (nuint) uncompressed.Length, (IntPtr)dstPtr, compressedLength);
+    //             watch.Stop();
+    //             
+    //             var decompressionTook = watch.Elapsed;
+    //             
+    //             Debug.Log($"Compressed to size: {compressedLength} bytes. Decompressed to size: {decompressedLength} bytes. Original {src.Length} bytes");
+    //             Debug.Log($"Data input bytes: {src.Length}. Compression time: {compressionTook.ToString()}ms. Decompression time: {decompressionTook.ToString()}ms");
+    //             label.text = $"{compressedLength} {decompressedLength} {src.Length}";
+    //         }
+    //             
+    //         ZstdWizard.ZSTD_freeCCtx(cctx);
+    //         ZstdWizard.ZSTD_freeDCtx(dctx);
+    //         
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         label.text = e.Message;
+    //         Debug.LogError(e);
+    //     }
+    // }
+
+    // unsafe void DictionaryTest(byte[] src)
+    // {
+    //     var trainedData = Resources.Load<TextAsset>("sample_dict").bytes;
+    //     var span = new Span<byte>(trainedData);
+    //     try
+    //     {
+    //         var watch = new System.Diagnostics.Stopwatch();
+    //         
+    //         var cdict = ZstdWizard.ZSTD_createCDict(trainedData, (size_t)trainedData.Length, 3);
+    //         var ddict = ZstdWizard.ZSTD_createDDict(trainedData, (size_t)trainedData.Length);
+    //         
+    //         var cctx = ZstdWizard.ZSTD_createCCtx();
+    //         var dctx = ZstdWizard.ZSTD_createDCtx();
+    //         
+    //         ZstdWizard.ZSTD_CCtx_refCDict(cctx, cdict);
+    //         ZstdWizard.ZSTD_DCtx_refDDict(dctx, ddict);
+    //         
+    //         var dstCapacity = Math.Min(Consts.MaxByteArrayLength, ZstdWizard.ZSTD_compressBound((nuint)src.Length));
+    //         var dst = new byte[dstCapacity];
+    //         var uncompressed = new byte[src.Length];
+    //         
+    //         fixed (byte* srcPtr = src)
+    //         fixed (byte* dstPtr = dst)
+    //         fixed (byte* uncompressedPtr = uncompressed)
+    //         {
+    //             watch.Start();
+    //             var compressedLength = ZstdWizard.ZSTD_compress_usingCDict(cctx, 
+    //                 (IntPtr) dstPtr, (size_t)dst.Length, 
+    //                 (IntPtr) srcPtr, (size_t)src.Length, cctx);
+    //             watch.Stop();
+    //             
+    //             var compressionTook = watch.Elapsed;
+    //             
+    //             watch.Restart();
+    //             var decompressedLength = ZstdWizard.ZSTD_compress_usingCDict(dctx, 
+    //                 (IntPtr)uncompressedPtr, (size_t) uncompressed.Length, 
+    //             (IntPtr)dstPtr, compressedLength, dctx);
+    //             watch.Stop();
+    //
+    //             var r = (size_t)compressedLength;
+    //             var rr = (int)r;
+    //             var decompressionTook = watch.Elapsed;
+    //             
+    //             Debug.Log($"Compressed to size: {rr} bytes. Decompressed to size: {decompressedLength.ToUInt32()} bytes. Original {src.Length} bytes");
+    //             Debug.Log($"Data input bytes: {src.Length}. Compression time: {compressionTook.ToString()}ms. Decompression time: {decompressionTook.ToString()}ms");
+    //             label.text = $"{compressedLength} {decompressedLength} {src.Length}";
+    //         }
+    //         
+    //         ZstdWizard.ZSTD_freeCCtx(cctx);
+    //         ZstdWizard.ZSTD_freeDCtx(dctx);
+    //         ZstdWizard.ZSTD_freeCDict(cdict);
+    //         ZstdWizard.ZSTD_freeDDict(ddict);
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         label.text = e.Message;
+    //         Debug.LogError(e);
+    //     }
+    // }
+
+    void Wrapped(byte[] src)
     {
-        try
-        {
-            var watch = new System.Diagnostics.Stopwatch();
-
-            var cctx = ZstdWizard.ZSTD_createCCtx();
-            var dctx = ZstdWizard.ZSTD_createDCtx();
-
-            var dest = new byte[ZstdWizard.ZSTD_compressBound((nuint)src.Length)];
-            var uncompressed = new byte[src.Length];
-            
-            fixed (byte* dstPtr = dest)
-            fixed (byte* srcPtr = src)
-            fixed (byte* uncompressedPtr = uncompressed)
-            {
-                watch.Start();
-                var compressedLength = ZstdWizard.ZSTD_compressCCtx(cctx, (IntPtr)dstPtr, (nuint)dest.Length, (IntPtr) srcPtr, (nuint)src.Length,
-                    (int)ZstdWizard.ZSTD_cParameter.ZSTD_c_compressionLevel);
-                watch.Stop();
-
-                var compressionTook = watch.Elapsed;
-                
-                watch.Restart();
-                var decompressedLength = ZstdWizard.ZSTD_decompressDCtx(dctx, (IntPtr)uncompressedPtr, (nuint) uncompressed.Length, (IntPtr)dstPtr, compressedLength);
-                watch.Stop();
-                
-                var decompressionTook = watch.Elapsed;
-                
-                Debug.Log($"Compressed to size: {compressedLength} bytes. Decompressed to size: {decompressedLength} bytes. Original {src.Length} bytes");
-                Debug.Log($"Data input bytes: {src.Length}. Compression time: {compressionTook.ToString()}ms. Decompression time: {decompressionTook.ToString()}ms");
-                label.text = $"{compressedLength} {decompressedLength} {src.Length}";
-            }
-                
-            ZstdWizard.ZSTD_freeCCtx(cctx);
-            ZstdWizard.ZSTD_freeDCtx(dctx);
-            
-        }
-        catch (Exception e)
-        {
-            label.text = e.Message;
-            Debug.LogError(e);
-        }
-    }
-
-    unsafe void DictionaryTest(byte[] src)
-    {
-        var trainedData = Resources.Load<TextAsset>("sample_dict").bytes;
-        //var trainedData = File.ReadAllBytes();
+        var watch = new System.Diagnostics.Stopwatch();
+        var trainedData = Resources.Load<TextAsset>("dict").bytes;
+        using var options = new CConfig(trainedData, compressionLevel: 5);
+        using var compressor = new Compression(options);
         
-        try
-        {
-            var watch = new System.Diagnostics.Stopwatch();
-            
-            var dict = ZstdWizard.ZSTD_createCDict(trainedData, (size_t)trainedData.Length, 1);
-            var cctx = ZstdWizard.ZSTD_createCCtx();
-            var dctx = ZstdWizard.ZSTD_createDCtx();
-            var ccctx = ZstdWizard.ZSTD_CCtx_refCDict(cctx, dict);
-            var ddctx = ZstdWizard.ZSTD_DCtx_refDDict(dctx, dict);
-
-            var dest = new byte[ZstdWizard.ZSTD_compressBound((nuint)src.Length)];
-            var uncompressed = new byte[src.Length];
-            fixed (byte* dictPtr = trainedData)
-            fixed (byte* dstPtr = dest)
-            fixed (byte* srcPtr = src)
-            fixed (byte* uncompressedPtr = uncompressed)
-            {
-                watch.Start();
-                var compressedLength = ZstdWizard.ZSTD_compress_usingCDict(cctx, (IntPtr)dstPtr, (size_t)dest.Length, (IntPtr) srcPtr, (size_t)src.Length, (IntPtr)dictPtr);
-                watch.Stop();
-
-                var compressionTook = watch.Elapsed;
-                
-                watch.Restart();
-                var decompressedLength = ZstdWizard.ZSTD_compress_usingCDict(dctx, (IntPtr)uncompressedPtr, (size_t) uncompressed.Length, 
-                (IntPtr)dstPtr, compressedLength, (IntPtr)dictPtr);
-                watch.Stop();
-                
-                var decompressionTook = watch.Elapsed;
-                
-                Debug.Log($"Compressed to size: {compressedLength} bytes. Decompressed to size: {decompressedLength} bytes. Original {src.Length} bytes");
-                Debug.Log($"Data input bytes: {src.Length}. Compression time: {compressionTook.ToString()}ms. Decompression time: {decompressionTook.ToString()}ms");
-                label.text = $"{compressedLength} {decompressedLength} {src.Length}";
-            }
-                
-            ZstdWizard.ZSTD_freeCCtx(cctx);
-            ZstdWizard.ZSTD_freeDCtx(dctx);
-            
-        }
-        catch (Exception e)
-        {
-            label.text = e.Message;
-            Debug.LogError(e);
-        }
+        watch.Start();
+        var compressedData = compressor.Compress(src);
+        watch.Stop();
+        
+        var compressionTook = watch.Elapsed;
+        Debug.Log($"Compressed to size: {compressedData.Length} bytes. Original {src.Length}bytes");
+        Debug.Log($"Data input bytes: {src.Length}. Compression time: {compressionTook.ToString()}ms");
+        
+        using var dconfig = new DConfig(trainedData);
+        using var decompressor = new Decompression(dconfig);
+        var decompressedData = decompressor.Decompress(compressedData);
+        
+        Debug.Log($"Decompressed to size: {decompressedData.Length} bytes. Original {src.Length}bytes");
     }
-
+    
     
     private byte[] TrainDict()
     {
@@ -192,7 +225,7 @@ public class Tests : MonoBehaviour
         }).ToArray();
 
         var dictBuffer = new byte[dictCapacity];
-        var dictSize = (int)ZstdWizard
+        var dictSize = (int)Zstd
             .ZDICT_trainFromBuffer(dictBuffer, (size_t)dictCapacity, ms.GetBuffer(), dataSizes, (uint)dataSizes.Length);
 
         if(dictCapacity != dictSize)
