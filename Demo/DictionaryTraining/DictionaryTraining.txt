@@ -1,0 +1,21 @@
+Managed to find an example of creating dictionary from C# script therefore abandoned bash approach.
+Let me know if you would want bash instead.
+
+What is required to create a dictionary:
+
+C#:
+
+1. Create test data with any approach you would like. Example: couple files with characters of random amount
+2. Feed them to training method ZDICT_trainFromBuffer
+3. Save result of training. This is your dictionary for data set you provided.
+4. Initialise dictionary by ZSTD_createCDict and ZSTD_createDDict
+4. Whenever you wanna use your dict with compress/decompress you should pass it as parameter and use different method:
+ZSTD_compress_usingCDict/ZSTD_compress_usingCDict
+5. From this point you will use dictionary as a sample for zstd
+
+Bash:
+
+1. Open console and go use cd Demo/TrainingDictionary
+2. Run sh make_test_data.sh
+3. Go to ../Assets/Resources and take sample_dict.txt
+4. Load bytes of sample_dict.txt and put it in use for your C# scripts from step #3 of C# instructions

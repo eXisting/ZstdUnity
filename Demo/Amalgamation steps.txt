@@ -1,0 +1,6 @@
+Amalgamation steps:
+
+1. Fetch https://github.com/facebook/zstd
+2. Go to build/single_file_libs and open console
+3. run "sh create_single_file_library.sh"
+4. take newly created file with '*.c' extension and put it in unity Assets/Plugins folder

@@ -1,0 +1,83 @@
+Mac x64, Windows x64, iOS, Android work with this approach
+Editor will not work. Require precompiled dll to work with
+
+Benchmarking:
+Attention! This is just for calls of compress/decompress
+
+-----------
+zstd C++ code directly embedded into Unity and called via C#
+
+Compression level = 100
+1. Test #1
+Data input bytes: 100. Compression time: 00:00:00.0007526ms. Decompression time: 00:00:00.0002875ms
+Compressed to size: 65 bytes. Decompressed to size: 100 bytes. Original 100 bytes
+
+2. Test #2
+Data input bytes: 1000. Compression time: 00:00:00.0002740ms. Decompression time: 00:00:00.0000575ms
+Compressed to size: 447 bytes. Decompressed to size: 1000 bytes. Original 1000 bytes
+
+3. Test #3
+Data input bytes: 100000. Compression time: 00:00:00.0823466ms. Decompression time: 00:00:00.0006718ms
+Compressed to size: 40403 bytes. Decompressed to size: 100000 bytes. Original 100000 bytes
+
+Compression level = 1
+
+1. Test #1
+Data input bytes: 100. Compression time: 00:00:00.0005550ms. Decompression time: 00:00:00.0002640ms
+Compressed to size: 63 bytes. Decompressed to size: 100 bytes. Original 100 bytes
+
+2. Test #2
+Data input bytes: 1000. Compression time: 00:00:00.0000623ms. Decompression time: 00:00:00.0000516ms
+Compressed to size: 429 bytes. Decompressed to size: 1000 bytes. Original 1000 bytes
+
+3. Test #3
+Data input bytes: 100000. Compression time: 00:00:00.0027398ms. Decompression time: 00:00:00.0007749ms
+Compressed to size: 40739 bytes. Decompressed to size: 100000 bytes. Original 100000 bytes
+
+-----------
+LZ4 library as plugin (compiled to platform plugins: .so, .dll, .bundle, .a - doesn't work in other way)
+
+Compression level = 3 (default)
+
+1. Test #1
+Data input bytes: 100. Compression time: 00:00:00.0602043ms. Decompression time: 00:00:00.0003885ms
+Compressed to size: 123 bytes. Decompressed to size: 100 bytes. Original 100 bytes
+
+2. Test #2
+Data input bytes: 1000. Compression time: 00:00:00.0002131ms. Decompression time: 00:00:00.0000440ms
+Compressed to size: 985 bytes. Decompressed to size: 1000 bytes. Original 1000 bytes
+
+3. Test #3
+Data input bytes: 100000. Compression time: 00:00:00.0055576ms. Decompression time: 00:00:00.0005055ms
+Compressed to size: 67249 bytes. Decompressed to size: 100000 bytes. Original 100000 bytes
+
+Compression level = 1
+
+1. Test #1
+Data input bytes: 100. Compression time: 00:00:00.0528909ms. Decompression time: 00:00:00.0003578ms
+Compressed to size: 123 bytes. Decompressed to size: 100 bytes. Original 100 bytes
+
+2. Test #2
+Data input bytes: 1000. Compression time: 00:00:00.0001691ms. Decompression time: 00:00:00.0000140ms
+Compressed to size: 992 bytes. Decompressed to size: 1000 bytes. Original 1000 bytes
+
+3. Test #3
+Data input bytes: 100000. Compression time: 00:00:00.0055207ms. Decompression time: 00:00:00.0004707ms
+Compressed to size: 67324 bytes. Decompressed to size: 100000 bytes. Original 100000 bytes
+
+-----------
+Included in .NET BrotliEncoder tests:
+
+1. Test #1
+Data input bytes: 100. Compression time: 00:00:00.0033583ms. Decompression time: 00:00:00.0003567ms
+Compressed to size: 71 bytes. Decompressed to size: 100 bytes. Original 100 bytes
+
+2. Test #2
+Data input bytes: 1000. Compression time: 00:00:00.0047589ms. Decompression time: 00:00:00.0000669ms
+Compressed to size: 511 bytes. Decompressed to size: 1000 bytes. Original 1000 bytes
+
+3. Test #3
+Data input bytes: 100000. Compression time: 00:00:00.3162213ms. Decompression time: 00:00:00.0024059ms
+Compressed to size: 45547 bytes. Decompressed to size: 100000 bytes. Original 100000 bytes
+
+

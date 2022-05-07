@@ -1,0 +1,30 @@
+Editor DLL compilation steps:
+
+MAC:
+
+1. Fetch from zstd repo https://github.com/facebook/zstd
+2. Go to build/cmake (Detailed instructions could be found in README.md from this point)
+3. Paste this into the console:
+cd build/cmake
+mkdir builddir
+cd builddir
+cmake ..
+make
+
+4. You should get new folder created under "build/cmake/builddir"
+5. Go to build/cmake/builddir and find "libzstd.dylib"
+6. Rename to zstd.dylib and paste into unity Assets/Editor/Plugins/OSX folder
+7. Make sure to configure zstd with editor only by setting checkmarks under Editor
+
+From now on, Mac is able to work with zstd from editor
+
+Windows:
+
+1. Fetch from zstd repo https://github.com/facebook/zstd
+2. Go to build/VS2010 (I used this one)
+3. Open zstd.sln via your Visual Studio
+4. At the top bar hit Build -> Build solution
+5. Go to bin/Debug (or release - depends on your config selected)
+6. Find libzstd.dll in one of its subfolders
+7. Paste it into Unity Assets/Editor/Plugins/x86-64 folder and rename to zstd.dll
+8. Make sure to configure zstd with editor only by setting checkmarks under Editor
